@@ -9,7 +9,7 @@ class ApiService {
 
   static Future<double> getPrediction(Map<String, dynamic> data) async {
     final url = Uri.parse('$_baseUrl/predict');
-    
+
     final healthData = HealthData(
       age: data['age'],
       sex: data['sex'],

@@ -11,9 +11,9 @@ class AppConfig {
       return 'http://10.0.2.2:10000';
     }
   }
-  
+
   // App version
   static const String appVersion = '1.0.0';
-  
+
   // Other configuration settings can be added here
 }
