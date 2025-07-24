@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+venv/
+ENV/
+.env
+*.sqlite3
+*.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Flutter/Dart
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+*.lock
+*.iml
+.idea/
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Others
+*.log
+*.tmp
+*.swp
+
+# Node
+node_modules/
+
+# System
+Thumbs.db
+
+# Ignore model files if not needed
+*.pkl
