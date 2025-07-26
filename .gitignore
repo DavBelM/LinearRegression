@@ -47,10 +47,10 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Ignore model files if not needed
-*.pkl
+# Ignore large model files if not needed (commented out to include our model)
+# *.pkl
 *.h5
-*.joblib
+# *.joblib
 
 # Coverage reports
 coverage/
