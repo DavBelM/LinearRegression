@@ -29,7 +29,7 @@ The project is organized into three main components:
 - Displays results to the user
 
 ## API Endpoint
-[https://your-api-endpoint.onrender.com/docs](https://your-api-endpoint.onrender.com/docs)
+[https://linearregression-su6l.onrender.com/docs](https://linearregression-su6l.onrender.com/docs)
 
 ## Video Demo
 [YouTube Demo Link](https://youtu.be/your-video-id)

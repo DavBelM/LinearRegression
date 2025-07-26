@@ -3,8 +3,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 class AppConfig {
   // API endpoint configuration
   static String get apiBaseUrl {
-    // Replace with your actual Render URL after deployment
-    return 'https://your-app-name.onrender.com';
+    // Replace with your actual Render URL
+    return 'https://linearregression-su6l.onrender.com';
     
     // For local development, uncomment below:
     // if (kIsWeb) {

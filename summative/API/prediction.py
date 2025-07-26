@@ -55,13 +55,28 @@ class HealthData(BaseModel):
 @app.on_event("startup")
 async def load_model():
     global model
-    model_path = os.path.join(os.path.dirname(__file__), "health_cost_model.pkl")
-    if os.path.exists(model_path):
-        model = joblib.load(model_path)
-    else:
-        # For development/testing without the model file
-        print(f"Warning: Model file not found at {model_path}")
-        model = None
+    # Try multiple possible paths
+    possible_paths = [
+        "health_cost_model.pkl",
+        os.path.join(os.path.dirname(__file__), "health_cost_model.pkl"),
+        "/opt/render/project/src/summative/API/health_cost_model.pkl"
+    ]
+    
+    model = None
+    for model_path in possible_paths:
+        if os.path.exists(model_path):
+            try:
+                model = joblib.load(model_path)
+                print(f"Model loaded successfully from {model_path}")
+                break
+            except Exception as e:
+                print(f"Error loading model from {model_path}: {e}")
+                continue
+    
+    if model is None:
+        print(f"Warning: Model file not found in any of these paths: {possible_paths}")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Files in current directory: {os.listdir('.')}")
 
 # Health cost prediction endpoint
 @app.post("/predict", response_model=dict)
@@ -115,4 +130,6 @@ async def root():
 
 # Run the API with uvicorn
 if __name__ == "__main__":
-    uvicorn.run("prediction:app", host="0.0.0.0", port=8000, reload=True)
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("prediction:app", host="0.0.0.0", port=port)
