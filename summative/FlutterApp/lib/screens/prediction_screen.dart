@@ -20,6 +20,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
 
   bool _isLoading = false;
   String? _errorMessage;
+  bool _isCancelled = false;
 
   @override
   void dispose() {
@@ -34,6 +35,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
       setState(() {
         _isLoading = true;
         _errorMessage = null;
+        _isCancelled = false;
       });
 
       final data = {
@@ -47,17 +49,21 @@ class _PredictionScreenState extends State<PredictionScreen> {
 
       try {
         final result = await ApiService.getPrediction(data);
-
-        // Navigate to results screen
-        Navigator.pushNamed(context, '/results', arguments: {
-          'prediction': result,
-          'input_data': data,
-        });
+        
+        if (!_isCancelled && mounted) {
+          // Navigate to results screen
+          Navigator.pushNamed(context, '/results', arguments: {
+            'prediction': result,
+            'input_data': data,
+          });
+        }
 
       } catch (e) {
-        setState(() {
-          _errorMessage = 'Error: ${e.toString()}';
-        });
+        if (!_isCancelled && mounted) {
+          setState(() {
+            _errorMessage = e.toString();
+          });
+        }
       } finally {
         if (mounted) {
           setState(() {
@@ -66,6 +72,13 @@ class _PredictionScreenState extends State<PredictionScreen> {
         }
       }
     }
+  }
+  
+  void _cancelRequest() {
+    setState(() {
+      _isCancelled = true;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -175,15 +188,27 @@ class _PredictionScreenState extends State<PredictionScreen> {
                   },
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submitForm,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 15),
+                if (_isLoading) 
+                  Column(
+                    children: [
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      const Text('Getting prediction...'),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: _cancelRequest,
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  )
+                else 
+                  ElevatedButton(
+                    onPressed: _submitForm,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                    ),
+                    child: const Text('Predict', style: TextStyle(fontSize: 18)),
                   ),
-                  child: _isLoading
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Predict', style: TextStyle(fontSize: 18)),
-                ),
                 const SizedBox(height: 24),
                 if (_errorMessage != null)
                   Padding(
