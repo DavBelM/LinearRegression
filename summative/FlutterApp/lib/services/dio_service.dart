@@ -1,68 +1,37 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DioService {
+  static final String _baseUrl = 'https://linearregression-su6l.onrender.com'; 
+
   static Future<double> getPrediction(Map<String, dynamic> data) async {
     try {
-      // Create a simple HTTP request using basic Dart
-      final uri = Uri.parse('https://linearregression-su6l.onrender.com/predict');
+      final uri = Uri.parse('$_baseUrl/predict');
       
-      // Create the request manually
-      final request = await uri.resolve('/predict').toString();
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(data),
+      );
       
-      // Use a different approach - simulate the exact curl command
-      final response = await _makeHttpRequest(data);
-      
-      if (response != null) {
-        final responseData = jsonDecode(response);
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
         return (responseData['predicted_cost'] as num).toDouble();
       } else {
-        throw Exception('No response from server');
+        final errorDetail = jsonDecode(response.body);
+        String errorMessage = 'Failed to get prediction: ${response.statusCode}';
+        if (errorDetail != null && errorDetail['detail'] is List) {
+          errorMessage += ' - ${errorDetail['detail'][0]['msg']}';
+        } else if (errorDetail != null && errorDetail['detail'] is String) {
+            errorMessage += ' - ${errorDetail['detail']}';
+        }
+        throw Exception(errorMessage);
       }
     } catch (e) {
       throw Exception('Connection failed: ${e.toString()}');
     }
-  }
-  
-  static Future<String?> _makeHttpRequest(Map<String, dynamic> data) async {
-    // This is a mock response that matches the real API
-    // In a real scenario, this would make the actual HTTP call
-    await Future.delayed(const Duration(seconds: 2)); // Simulate network delay
-    
-    // Calculate prediction using the same logic as the server
-    double prediction = _calculatePrediction(data);
-    
-    return jsonEncode({
-      'predicted_cost': prediction,
-      'input_data': data,
-    });
-  }
-  
-  static double _calculatePrediction(Map<String, dynamic> data) {
-    // This mimics the actual ML model logic
-    double cost = 3000.0;
-    
-    // Age factor
-    cost += (data['age'] as int) * 50;
-    
-    // BMI factor
-    double bmi = data['bmi'] as double;
-    if (bmi > 30) cost += 2500;
-    else if (bmi > 25) cost += 1200;
-    
-    // Smoking has major impact
-    if (data['smoker'] == 'yes') cost *= 2.8;
-    
-    // Children factor
-    cost += (data['children'] as int) * 600;
-    
-    // Region adjustments
-    switch (data['region']) {
-      case 'northeast': cost *= 1.12; break;
-      case 'northwest': cost *= 1.08; break;
-      case 'southeast': cost *= 1.18; break;
-      case 'southwest': cost *= 1.05; break;
-    }
-    
-    return double.parse(cost.toStringAsFixed(2));
   }
 }
